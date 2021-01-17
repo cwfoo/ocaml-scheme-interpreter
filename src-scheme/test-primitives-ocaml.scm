@@ -3,6 +3,10 @@
 
 ; Missing tests: lots of primitives implemented in OCaml.
 
+;; Ensure that the predicate in 'if' is able to handle non-booleans.
+(assert-equal (if 123 'a 'b) 'a)
+(assert-equal (if 'xyz 'a 'b) 'a)
+
 (assert-true (list? '(a b c)))
 (assert-false (list? (cons 'a 'b)))
 

@@ -227,9 +227,8 @@ let rec eval exp env macros =
             (match cons_list_of_cons cdr with
             | List [predicate; consequent; alternative] ->
                 (match !(eval predicate env macros) with
-                | Env.Bool true -> eval consequent env macros
                 | Env.Bool false -> eval alternative env macros
-                | _ -> failwith "Predicate in IF must return a boolean.")
+                | _ -> eval consequent env macros)
             | Dotted_list _ -> failwith "(if x y . z) form is invalid."
             | _ -> failwith "Invalid if.")
         | Env.Id "cond" ->
