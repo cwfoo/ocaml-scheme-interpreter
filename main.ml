@@ -109,6 +109,9 @@ let repl env macros =
                 | Invalid_argument msg ->
                     print_endline ("Invalid argument: " ^ msg);
                     driver_loop ()
+                | Parsing.Parse_error ->
+                    print_endline "Parse error.";
+                    driver_loop ()
                 (* Ctrl-C. User wants to stop the evaluation. *)
                 | Sys.Break ->
                     (print_endline "Interrupted.";
