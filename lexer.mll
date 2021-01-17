@@ -32,7 +32,7 @@
             (match string_of_char_list c with
                 | "newline" -> '\n'
                 | "space" -> ' '
-                | "tab" -> '	'
+                | "tab" -> '\t'
                 | _ -> failwith ("Invalid character: " ^ s))
         | _ -> failwith ("Invalid character: " ^ s)
 }

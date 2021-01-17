@@ -45,7 +45,7 @@ let rec string_of_value = function
     | Bool false -> "#f"
     | Char '\n' -> "#\\newline"
     | Char ' ' -> "#\\space"
-    | Char '	' -> "#\\tab"
+    | Char '\t' -> "#\\tab"
     | Char c -> "#\\" ^ String.make 1 c
     | String s -> "\"" ^ s ^ "\""
     | Id s -> s
