@@ -146,6 +146,7 @@
 (assert-false (char-numeric? #\space))
 
 (assert-true (char-whitespace? #\space))
+(assert-true (char-whitespace? #\tab))
 (assert-true (char-whitespace? #\newline))
 (assert-false (char-whitespace? #\1))
 (assert-false (char-whitespace? #\a))

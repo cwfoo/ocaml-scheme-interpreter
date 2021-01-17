@@ -275,8 +275,8 @@
   (member c numeric))
 
 (define (char-whitespace? c)
-  (or (equal? c #\space)
-      (equal? c #\newline)))
+  (let ((whitespace-chars '(#\space #\tab #\newline)))
+   (member c whitespace-chars)))
 
 (define (char-upper-case? c)
   (define uppercase '(#\A #\B #\C #\D #\E #\F #\G #\H #\I #\J #\K #\L #\M
