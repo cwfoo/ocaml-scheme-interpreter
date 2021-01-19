@@ -70,6 +70,7 @@ Non-exhaustive list of defined primitives. Primitives are defined in
 * `string-length`, `string-append`, `string=?`, `string-ref`
 * `delay`, `force`
 * `#\newline`, `#\space`, `#\tab`
+* `quasiquote`, `unquote`, `unquote-splicing`
 
 
 ## Standards Compliance
@@ -81,7 +82,7 @@ this implementation is not compliant:
   may not be able to handle all the kinds of arguments that are required by
   the standard).
 * Some important language features have been omitted (e.g. the module system,
-  hygienic macros, `call-with-current-continuation`, `quasiquote`, `unquote`).
+  hygienic macros, `call-with-current-continuation`).
 * Numbers can overflow and underflow.
 
 With the exception of the crude implementation of an unhygienic macro system

@@ -131,7 +131,6 @@ let rec if_of_cond_clauses clauses =
                     failwith "Invalid cond.")) in
     if_of_cond_clauses_list clauses_list
 
-
 let rec eval exp env macros =
     match exp with
     | Env.Nil -> failwith "Invalid: (). The procedure to apply is missing."

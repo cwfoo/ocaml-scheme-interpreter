@@ -1,6 +1,29 @@
 ;;;; Unit tests for primitives.scm.
 (load "lib-assert.scm")
 
+;;; Quasiquote.
+(assert-equal `x (quasiquote x))
+(assert-equal `x 'x)
+(assert-equal `(0 1 2) (quasiquote (0 1 2)))
+(assert-equal `(0 1 2) '(0 1 2))
+(assert-equal `(0 1 ,(+ 1 1) 3) (quasiquote (0 1 (unquote (+ 1 1)) 3)))
+(assert-equal `(0 1 ,(+ 1 1) 3) '(0 1 2 3))
+;; Quasiquoted improper list.
+(assert-equal `(1 . 2) '(1 . 2))
+(assert-equal `(1 . ,(+ 1 1)) '(1 . 2))
+;; Quasiquotes within quasiquotes.
+(assert-equal ``,(+ 1 2) '(quasiquote (unquote (+ 1 2))))
+(assert-equal ``,,(+ 1 2) '(quasiquote (unquote 3)))
+(assert-equal `,`,(+ 1 2) 3)
+(assert-equal ```,,,(+ 1 2) '(quasiquote (quasiquote (unquote (unquote 3)))))
+(assert-equal ``,`,,(+ 1 2) '(quasiquote (unquote (quasiquote (unquote 3)))))
+(assert-equal `(1 `(2 ,(3 ,(+ 4 5) 6) 7) 8)
+              '(1 (quasiquote (2 (unquote (3 9 6)) 7)) 8))
+;; Unquote-splicing.
+(assert-equal `(,@(list 1 2 3)) '(1 2 3))
+(assert-equal `(1 ,@(list 2 3) 4) '(1 2 3 4))
+(assert-equal `(1 `,,@(list (+ 1 1)) 3) '(1 (quasiquote (unquote 2)) 3))
+
 (assert-true (and))
 (assert-equal (and 'x) 'x)
 (assert-equal (and #t 'x) 'x)

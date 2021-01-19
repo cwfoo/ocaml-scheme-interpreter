@@ -57,6 +57,7 @@ rule lex = parse
   | "'" { Parser.QUOTE }  (* Single quote. *)
   | "`" { Parser.QUASIQUOTE }  (* Backtick. *)
   | "," { Parser.UNQUOTE }  (* Comma. *)
+  | ",@" { Parser.UNQUOTE_SPLICING }
   | (digit+ '.' digit*) as r { Parser.REAL (float_of_string r) }
   | ("#\\" character) as c { Parser.CHAR (get_char c) }
   | "#\\ " { Parser.CHAR ' ' }  (* #\  represents the space character. *)

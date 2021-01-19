@@ -18,6 +18,7 @@ let rec cons_of_list l last =
 %token QUOTE
 %token QUASIQUOTE
 %token UNQUOTE
+%token UNQUOTE_SPLICING
 %token HASH
 %token EOF
 
@@ -39,6 +40,8 @@ sexpr: atom { $1 }
   | quoted { Sexpr.Cons (Sexpr.Id "quote", Sexpr.Cons ($1, Sexpr.Nil)) }
   | quasiquoted { Sexpr.Cons (Sexpr.Id "quasiquote", Sexpr.Cons ($1, Sexpr.Nil)) }
   | unquoted { Sexpr.Cons (Sexpr.Id "unquote", Sexpr.Cons ($1, Sexpr.Nil)) }
+  | unquoted_splicing { Sexpr.Cons (Sexpr.Id "unquote-splicing",
+                                    Sexpr.Cons ($1, Sexpr.Nil)) }
   | slist { cons_of_list $1 Sexpr.Nil }
   | dotted_slist { match $1 with (l, e) -> cons_of_list l e }
   | vector { Sexpr.Vector $1 }
@@ -59,6 +62,9 @@ quasiquoted: QUASIQUOTE sexpr { $2 }
 ;
 
 unquoted: UNQUOTE sexpr { $2 }
+;
+
+unquoted_splicing: UNQUOTE_SPLICING sexpr { $2 }
 ;
 
 /* List of S-expressions, surrounded by parentheses. */
