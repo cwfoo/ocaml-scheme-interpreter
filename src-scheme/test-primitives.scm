@@ -97,6 +97,12 @@
 (assert-equal (append '(1 2 3) '()) '(1 2 3))
 (assert-equal (append '() '(4 5 6)) '(4 5 6))
 (assert-equal (append '(1 2 3) '(4 5 6)) '(1 2 3 4 5 6))
+(assert-equal (append '(1 2) '(3 4) '(5 6)) '(1 2 3 4 5 6))
+(assert-equal (append '(1 2) '() '(3 4) '() '(5 6)) '(1 2 3 4 5 6))
+(assert-equal (append 'a) 'a)
+(assert-equal (append '(a) 'b) '(a . b))
+(assert-equal (append '(a b) 'c) '(a b . c))
+(assert-equal (append '(a b) '(c . d)) '(a b c . d))
 
 (assert-equal (map (lambda (x) x) '()) '())
 (assert-equal (map (lambda (x) (+ x 1)) '(1 2)) '(2 3))

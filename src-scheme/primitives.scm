@@ -165,11 +165,19 @@
             (cdr remaining))))
   (loop '() l))
 
-(define (append l1 l2)
-  (cond ((null? l1) l2)
-        (else
-          (cons (car l1)
-                (append (cdr l1) l2)))))
+(define (append . lists)
+  (define (append-lol lol)
+    (cond ((null? lol) '())
+          ((null? (cdr lol))
+           (car lol))
+          (else
+            (let ((first-list (car lol)))
+             (if (null? first-list)
+                 (append-lol (cdr lol))
+                 (cons (car first-list)
+                       (append-lol (cons (cdr first-list)
+                                         (cdr lol)))))))))
+  (append-lol lists))
 
 (define (map f l)
   (cond ((null? l) '())
