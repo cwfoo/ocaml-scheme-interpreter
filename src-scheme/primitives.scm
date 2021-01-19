@@ -24,23 +24,36 @@
   (exp))
 
 ;;; Boolean.
+;; (and) -> #t
+;; (and x) -> x
 ;; (and x y) -> (if x y #f)
+;; Takes any number of arguments.
 (define-macro and
   (lambda (exp)
-    (cons 'if
-          (cons (cadr exp)
-                (cons (caddr exp)
-                      (cons #f
-                            '()))))))
+    (cond ((null? (cdr exp))  ; (and)
+           #t)
+          ((null? (cddr exp))  ; (and x)
+           (cadr exp))
+          (else  ; (and x0 x1 ...)
+            (list 'if (cadr exp)
+                  (cons 'and (cddr exp))
+                  #f)))))
 
-;; (or x y) -> (if x #t y)
+;; (or) -> #f
+;; (or x) -> x
+;; (or x y) -> (if x x y)
+;; Takes any number of arguments.
 (define-macro or
   (lambda (exp)
-    (cons 'if
-          (cons (cadr exp)
-                (cons #t
-                      (cons (caddr exp)
-                            '()))))))
+    (cond ((null? (cdr exp))  ; (or)
+           #f)
+          (else  ; (or x ...)
+            ;; 'temp-gensymed-var is a hack. It is unhygienic.
+            ;; In the future, implement syntax-rules macros or use gensym.
+            (list 'let (list (list 'temp-gensymed-var (cadr exp)))
+                  (list 'if 'temp-gensymed-var
+                        'temp-gensymed-var
+                        (cons 'or (cddr exp))))))))
 
 (define true #t)
 (define false #f)
