@@ -7,10 +7,7 @@
 ;; (begin e ...) -> ((lambda () e ...))
 (define-macro begin
   (lambda (exp)
-    (cons (cons 'lambda
-                (cons '()
-                      (cdr exp)))
-          '())))
+    (list (cons 'lambda (cons '() (cdr exp))))))
 
 ;;; Delay and force.
 ;; (delay exp) -> (lambda () exp)
