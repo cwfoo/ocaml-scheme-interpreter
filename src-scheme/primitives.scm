@@ -20,6 +20,38 @@
 (define (force exp)
   (exp))
 
+;;; Cond.
+;;; Expand to a chain of ifs.
+(define-macro cond
+  (lambda (exp)
+    ;; Be careful to define this macro using only primitives that are not
+    ;; themselves defined using 'cond'. Otherwise, an infinite loop may result.
+    ;; In particular, avoid the use of 'and', and of course 'cond' itself.
+    (let ((clauses (cdr exp)))
+      (if (null? clauses)
+        (error "Invalid cond: there must be at least one clause.")
+        (let ((first-clause (car clauses))
+              (rest-clauses (cdr clauses)))
+          (if (not (pair? first-clause))
+            (error "Invalid cond: every clause must be a pair.")
+            (list 'if
+                  ;; Predicate.
+                  ;; 'else' is only valid when it is the predicate of the last
+                  ;; clause.
+                  (if (eq? (car first-clause) 'else)
+                    (if (null? rest-clauses)  ; Avoid 'and' (avoid infinite loop).
+                      #t
+                      (car first-clause))
+                    (car first-clause))
+                  ;; Consequent.
+                  (if (null? (cdr first-clause))
+                    (error "Invalid cond: every clause must have a body.")
+                    (cons 'begin (cdr first-clause)))
+                  ;; Alternative.
+                  (if (null? rest-clauses)
+                    #f
+                    (cons 'cond rest-clauses)))))))))
+
 ;;; Quasiquote, unquote, and unquote-splicing.
 ;;; Implementation based on "Quasiquotation in Lisp" by Alan Bawden (1999).
 (define-macro quasiquote

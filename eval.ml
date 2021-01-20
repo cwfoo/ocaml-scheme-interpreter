@@ -49,88 +49,6 @@ let rec list_to_cons l last =
     | [] -> last
     | x::xs -> Env.Cons (ref x, ref (list_to_cons xs last))
 
-let make_if predicate consequent alternative =
-    (* (if predicate consequent alternative) *)
-    Env.Cons (ref (Env.Id "if"),
-              ref (Env.Cons (ref predicate,
-                             ref (Env.Cons (ref consequent,
-                                            ref (Env.Cons (ref alternative,
-                                                           ref Env.Nil)))))))
-
-(* Convert list of cond clauses to nested ifs.
- * e.g. of cond clauses: [
-     ((= x 0) (display "0"));
-     ((= x 1) (display "1")
-              (display "2"));
-     (else    (display "none"));
-   ]
- *)
-let rec if_of_cond_clauses clauses =
-    let clauses_list = cons_list_of_cons clauses in
-    let rec if_of_cond_clauses_list l =
-    match l with
-    | Dotted_list _ -> failwith "(cond x y . z) form is invalid."
-    | List l ->
-        (*  [
-         *     ((null? x) do_this);
-         *     ((= x 1) do_that);
-         *  ]
-         *  *)
-            (match l with
-            (* No clauses in the cond e.g. (cond) *)
-            | [] -> failwith "Invalid cond."
-            (* The last clause in the cond, *)
-            | [c] ->
-                (match c with
-                (* e.g. ((p? x) y) *)
-                | Env.Cons _ ->
-                    let clause = cons_list_of_cons c in
-                    (match clause with
-                    | Dotted_list _ -> failwith "(cond (x y . z)) form is invalid."
-                    | List l ->
-                        (match l with
-                        (* e.g. (else x) *)
-                        | Env.Id "else"::consequent ->
-                            Env.Cons (ref (Env.Id "begin"),
-                                      ref (list_to_cons consequent Env.Nil))
-                        (* e.g. ((null? x) y) *)
-                        | predicate::consequent ->
-                            (* Transform to (if predicate consequent '()) *)
-                            make_if predicate
-                                    (Env.Cons (ref (Env.Id "begin"),
-                                               ref (list_to_cons consequent Env.Nil)))
-                                    Env.Nil
-                        (* Invalid. Missing predicate or consequent e.g. (x) *)
-                        | _ -> failwith "Invalid cond clause."))
-                | _ ->
-                    (* Invalid e.g. (cond 1) *)
-                    failwith "Invalid cond.")
-            (* If not the last clause in the cond. *)
-            | c::cs ->
-                (match c with
-                (* e.g. ((p? x) y) *)
-                | Env.Cons _ ->
-                    let clause = cons_list_of_cons c in
-                    (match clause with
-                    | Dotted_list _ ->
-                        failwith "(cond (x y . z)) form is invalid."
-                    | List l ->
-                        (match l with
-                        (* e.g. (else x) *)
-                        | Env.Id "else"::consequent ->
-                            failwith "else clause must be last."
-                        | predicate::consequent ->
-                            make_if predicate
-                                    (Env.Cons (ref (Env.Id "begin"),
-                                               ref (list_to_cons consequent Env.Nil)))
-                                    (if_of_cond_clauses_list (cons_list_of_cons (list_to_cons cs Env.Nil)))
-                        (* Invalid. Missing predicate or consequent e.g. (x) *)
-                        | _ -> failwith "Invalid cond clause."))
-                | _ ->
-                    (* Invalid e.g. (cond 1 2 3) *)
-                    failwith "Invalid cond.")) in
-    if_of_cond_clauses_list clauses_list
-
 let rec eval exp env macros =
     match exp with
     | Env.Nil -> failwith "Invalid: (). The procedure to apply is missing."
@@ -230,8 +148,6 @@ let rec eval exp env macros =
                 | _ -> eval consequent env macros)
             | Dotted_list _ -> failwith "(if x y . z) form is invalid."
             | _ -> failwith "Invalid if.")
-        | Env.Id "cond" ->
-            eval (if_of_cond_clauses cdr) env macros
         | Env.Id "let" ->
             (* (let ((x y)) ...) -> ((lambda (x) ...) y) *)
             (match cdr with
