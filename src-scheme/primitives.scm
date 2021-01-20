@@ -26,7 +26,7 @@
   (lambda (exp)
     ;; Be careful to define this macro using only primitives that are not
     ;; themselves defined using 'cond'. Otherwise, an infinite loop may result.
-    ;; In particular, avoid the use of 'and', and of course 'cond' itself.
+    ;; In particular, avoid the use of 'cond' itself.
     (let ((clauses (cdr exp)))
       (if (null? clauses)
         (error "Invalid cond: there must be at least one clause.")
@@ -38,11 +38,10 @@
                   ;; Predicate.
                   ;; 'else' is only valid when it is the predicate of the last
                   ;; clause.
-                  (if (eq? (car first-clause) 'else)
-                    (if (null? rest-clauses)  ; Avoid 'and' (avoid infinite loop).
+                  (if (and (eq? (car first-clause) 'else)
+                           (null? rest-clauses))
                       #t
                       (car first-clause))
-                    (car first-clause))
                   ;; Consequent.
                   (if (null? (cdr first-clause))
                     (error "Invalid cond: every clause must have a body.")
@@ -118,14 +117,13 @@
 ;; Takes any number of arguments.
 (define-macro and
   (lambda (exp)
-    (cond ((null? (cdr exp))  ; (and)
-           #t)
-          ((null? (cddr exp))  ; (and x)
-           (cadr exp))
-          (else  ; (and x0 x1 ...)
-            (list 'if (cadr exp)
-                  (cons 'and (cddr exp))
-                  #f)))))
+    (if (null? (cdr exp))  ; (and)
+      #t
+      (if (null? (cddr exp))  ; (and x)
+        (cadr exp)
+        (list 'if (cadr exp)  ; (and x0 x1 ...)
+              (cons 'and (cddr exp))
+              #f)))))
 
 ;; (or) -> #f
 ;; (or x) -> x
@@ -133,15 +131,14 @@
 ;; Takes any number of arguments.
 (define-macro or
   (lambda (exp)
-    (cond ((null? (cdr exp))  ; (or)
-           #f)
-          (else  ; (or x ...)
-            ;; 'temp-gensymed-var is a hack. It is unhygienic.
-            ;; In the future, implement syntax-rules macros or use gensym.
-            (list 'let (list (list 'temp-gensymed-var (cadr exp)))
-                  (list 'if 'temp-gensymed-var
-                        'temp-gensymed-var
-                        (cons 'or (cddr exp))))))))
+    (if (null? (cdr exp))  ; (or)
+      #f
+      ;; 'temp-gensymed-var is a hack. It is unhygienic.
+      ;; In the future, implement syntax-rules macros or use gensym.
+      (list 'let (list (list 'temp-gensymed-var (cadr exp)))  ; (or x ...)
+            (list 'if 'temp-gensymed-var
+                  'temp-gensymed-var
+                  (cons 'or (cddr exp)))))))
 
 (define true #t)
 (define false #f)
