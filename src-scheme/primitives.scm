@@ -20,6 +20,37 @@
 (define (force exp)
   (exp))
 
+;;; Let.
+;;; (let ((a b)) x ...) -> ((lambda (a) x ...) b)
+(define-macro let
+  (lambda (exp)
+    ;; Be careful to define this macro using only primitives that are not
+    ;; themselves defined using 'let'. Otherwise, an infinite loop may result.
+    ;; Avoid the use of 'cond' because 'cond' uses 'let'.
+    (if (null? (cdr exp))
+      (error "Invalid let: missing variable binding list and body.")
+      (if (not (list? (cadr exp)))
+        (error "Invalid let: invalid variable binding list.")
+        (if (null? (cddr exp))
+          (error "Invalid let: missing body.")
+          (cons (list 'lambda
+                      ;; Binding IDs.
+                      (map (lambda (binding)
+                             (if (not (pair? binding))
+                               (error "Invalid let: invalid variable binding list.")
+                               (if (null? (cdr binding))
+                                 (error "Invalid let: every binding must have a value.")
+                                 (car binding))))
+                           (cadr exp))
+                      ;; Body.
+                      (caddr exp))
+                ;; Binding values.
+                (map (lambda (binding)
+                       (if (null? (cddr binding))
+                         (cadr binding)
+                         (error "Invalid let: invalid binding; more than one value given.")))
+                     (cadr exp))))))))
+
 ;;; Cond.
 ;;; Expand to a chain of ifs.
 (define-macro cond
@@ -268,10 +299,10 @@
   (append-lol lists))
 
 (define (map f l)
-  (cond ((null? l) '())
-        (else
-          (cons (f (car l))
-                (map f (cdr l))))))
+  (if (null? l)
+    '()
+    (cons (f (car l))
+          (map f (cdr l)))))
 
 (define (filter f l)
   (cond ((null? l) '())

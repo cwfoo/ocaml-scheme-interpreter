@@ -148,37 +148,6 @@ let rec eval exp env macros =
                 | _ -> eval consequent env macros)
             | Dotted_list _ -> failwith "(if x y . z) form is invalid."
             | _ -> failwith "Invalid if.")
-        | Env.Id "let" ->
-            (* (let ((x y)) ...) -> ((lambda (x) ...) y) *)
-            (match cdr with
-            | Env.Cons ({contents=bindings}, {contents=body}) ->
-                (match cons_list_of_cons bindings with
-                | List l ->
-                    let ids = List.map
-                        (fun e ->
-                            match e with
-                            | Env.Cons ({contents=id},
-                                        {contents=Env.Cons ({contents=value},
-                                                            {contents=Env.Nil})}) ->
-                                id
-                            | _ -> failwith "Invalid let.")
-                        l in
-                    let values = List.map
-                        (fun e ->
-                            match e with
-                            | Env.Cons ({contents=id},
-                                        {contents=Env.Cons ({contents=value},
-                                                            {contents=Env.Nil})}) ->
-                                value
-                            | _ -> failwith "Invalid let.")
-                        l in
-                    let lambda = ref (Env.Cons (ref (Env.Id "lambda"),
-                                                ref (Env.Cons (ref (list_to_cons ids Env.Nil),
-                                                               ref body)))) in
-                    eval (Env.Cons (lambda,
-                                   ref (list_to_cons values Env.Nil))) env macros
-                | Dotted_list _ -> failwith "Invalid let.")
-            | _ -> failwith "Invalid let.")
         (* Apply. *)
         | proc_exp ->
             let eval_proc proc_exp cdr env macros =
