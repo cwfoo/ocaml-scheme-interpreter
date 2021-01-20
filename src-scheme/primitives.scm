@@ -41,7 +41,7 @@
                                 (null? (cddr x)))
                            (cadr x))
                           (else
-                            (error "Illegal quasiquote."))))
+                            (error "Invalid quasiquote."))))
                    (else
                      (list 'append
                            (qq-expand-list (car x) depth)
@@ -72,7 +72,12 @@
             (else
               (list 'quote (list x)))))
 
-    (qq-expand (cadr exp) 0)))
+    (cond ((null? (cdr exp))
+           (error "Invalid quasiquote: missing argument."))
+          ((null? (cddr exp))
+           (qq-expand (cadr exp) 0))
+          (else
+            (error "Invalid quasiquote: more than one argument given.")))))
 
 ;;; Boolean.
 ;; (and) -> #t
