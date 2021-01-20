@@ -96,7 +96,7 @@ let repl env macros =
                 let lexbuf = Lexing.from_string input in
                 let sexpr = (Parser.parse Lexer.lex) lexbuf in
                 match sexpr with
-                | None -> ()
+                | None -> driver_loop ()
                 | Some s ->
                     let exp = Env.value_of_sexpr s in
                     let value = Eval.eval exp env macros in
