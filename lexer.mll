@@ -74,10 +74,10 @@ rule lex = parse
  * Reference: https://medium.com/@huund/recipes-for-ocamllex-bb4efa0afe53 *)
 and string_scanner buf = parse
     | [^ '"' '\n' '\\']+ {
-        Buffer.add_string buf @@ (Lexing.lexeme lexbuf);
+        Buffer.add_string buf (Lexing.lexeme lexbuf);
         string_scanner buf lexbuf }
     | '\n' {
-        Buffer.add_string buf @@ (Lexing.lexeme lexbuf);
+        Buffer.add_string buf (Lexing.lexeme lexbuf);
         Lexing.new_line lexbuf;
         string_scanner buf lexbuf }
     | '\\' '"' {
